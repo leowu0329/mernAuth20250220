@@ -1,0 +1,223 @@
+import { useState } from 'react';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import {
+  AppBar,
+  Box,
+  Toolbar,
+  IconButton,
+  Typography,
+  Menu,
+  MenuItem,
+  Container,
+  Avatar,
+  Button,
+  Divider,
+  ListItemIcon,
+  useTheme,
+  useMediaQuery
+} from '@mui/material';
+import {
+  Menu as MenuIcon,
+  Person as PersonIcon,
+  Settings as SettingsIcon,
+  Logout as LogoutIcon,
+  Dashboard as DashboardIcon
+} from '@mui/icons-material';
+import { toast } from 'react-toastify';
+
+const Navbar = () => {
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [mobileAnchorEl, setMobileAnchorEl] = useState(null);
+
+  // 從 localStorage 獲取用戶資訊
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+  const handleOpenUserMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleOpenMobileMenu = (event) => {
+    setMobileAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseUserMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const handleCloseMobileMenu = () => {
+    setMobileAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    handleCloseUserMenu();
+    // 清除本地存儲的用戶資訊
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    toast.success('已成功登出');
+    navigate('/login');
+  };
+
+  const menuItems = [
+    {
+      label: '首頁',
+      icon: <DashboardIcon fontSize="small" />,
+      onClick: () => navigate('/'),
+    },
+    {
+      label: '個人資料',
+      icon: <PersonIcon fontSize="small" />,
+      onClick: () => navigate('/profile'),
+    },
+    {
+      label: '修改密碼',
+      icon: <SettingsIcon fontSize="small" />,
+      onClick: () => navigate('/change-password'),
+    },
+  ];
+
+  return (
+    <AppBar position="fixed">
+      <Container maxWidth="xl">
+        <Toolbar disableGutters>
+          {/* Logo 區域 */}
+          <Typography
+            variant="h6"
+            noWrap
+            component={RouterLink}
+            to="/"
+            sx={{
+              mr: 2,
+              fontFamily: 'monospace',
+              fontWeight: 700,
+              letterSpacing: '.3rem',
+              color: 'inherit',
+              textDecoration: 'none',
+              flexGrow: { xs: 1, md: 0 }
+            }}
+          >
+            LOGO
+          </Typography>
+
+          {/* 手機版選單 */}
+          {isMobile && (
+            <>
+              <IconButton
+                size="large"
+                aria-controls="menu-mobile"
+                aria-haspopup="true"
+                onClick={handleOpenMobileMenu}
+                color="inherit"
+              >
+                <MenuIcon />
+              </IconButton>
+              <Menu
+                id="menu-mobile"
+                anchorEl={mobileAnchorEl}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'left',
+                }}
+                open={Boolean(mobileAnchorEl)}
+                onClose={handleCloseMobileMenu}
+              >
+                {menuItems.map((item) => (
+                  <MenuItem
+                    key={item.label}
+                    onClick={() => {
+                      item.onClick();
+                      handleCloseMobileMenu();
+                    }}
+                  >
+                    <ListItemIcon>{item.icon}</ListItemIcon>
+                    <Typography textAlign="center">{item.label}</Typography>
+                  </MenuItem>
+                ))}
+                <Divider />
+                <MenuItem onClick={handleLogout}>
+                  <ListItemIcon>
+                    <LogoutIcon fontSize="small" />
+                  </ListItemIcon>
+                  <Typography textAlign="center">登出</Typography>
+                </MenuItem>
+              </Menu>
+            </>
+          )}
+
+          {/* 桌面版選單 */}
+          {!isMobile && (
+            <>
+              <Box sx={{ flexGrow: 1, display: 'flex', gap: 2 }}>
+                {menuItems.map((item) => (
+                  <Button
+                    key={item.label}
+                    onClick={item.onClick}
+                    sx={{ color: 'white' }}
+                    startIcon={item.icon}
+                  >
+                    {item.label}
+                  </Button>
+                ))}
+              </Box>
+
+              <Box sx={{ flexGrow: 0 }}>
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Avatar alt={user.name} src="/static/images/avatar/2.jpg" />
+                </IconButton>
+                <Menu
+                  sx={{ mt: '45px' }}
+                  id="menu-appbar"
+                  anchorEl={anchorEl}
+                  anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  open={Boolean(anchorEl)}
+                  onClose={handleCloseUserMenu}
+                >
+                  <MenuItem disabled>
+                    <Typography textAlign="center">{user.name}</Typography>
+                  </MenuItem>
+                  <Divider />
+                  {menuItems.map((item) => (
+                    <MenuItem
+                      key={item.label}
+                      onClick={() => {
+                        item.onClick();
+                        handleCloseUserMenu();
+                      }}
+                    >
+                      <ListItemIcon>{item.icon}</ListItemIcon>
+                      <Typography textAlign="center">{item.label}</Typography>
+                    </MenuItem>
+                  ))}
+                  <Divider />
+                  <MenuItem onClick={handleLogout}>
+                    <ListItemIcon>
+                      <LogoutIcon fontSize="small" />
+                    </ListItemIcon>
+                    <Typography textAlign="center">登出</Typography>
+                  </MenuItem>
+                </Menu>
+              </Box>
+            </>
+          )}
+        </Toolbar>
+      </Container>
+    </AppBar>
+  );
+};
+
+export default Navbar;

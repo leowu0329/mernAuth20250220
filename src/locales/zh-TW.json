@@ -1,0 +1,35 @@
+{
+  "app.title": "認證系統",
+  "app.description": "安全的認證系統",
+
+  "nav.home": "首頁",
+  "nav.profile": "個人資料",
+  "nav.settings": "設定",
+  "nav.logout": "登出",
+
+  "auth.login": "登入",
+  "auth.register": "註冊",
+  "auth.forgotPassword": "忘記密碼",
+  "auth.resetPassword": "重設密碼",
+  "auth.verifyEmail": "驗證電子郵件",
+
+  "form.email": "電子郵件",
+  "form.password": "密碼",
+  "form.confirmPassword": "確認密碼",
+  "form.name": "姓名",
+  "form.submit": "送出",
+  "form.cancel": "取消",
+
+  "profile.title": "個人資料",
+  "profile.edit": "編輯資料",
+  "profile.save": "儲存變更",
+
+  "error.required": "此欄位為必填",
+  "error.invalidEmail": "請輸入有效的電子郵件地址",
+  "error.passwordMismatch": "密碼不符",
+  "error.generic": "發生錯誤，請稍後再試",
+
+  "success.profileUpdated": "個人資料已更新",
+  "success.passwordChanged": "密碼已變更",
+  "success.emailVerified": "電子郵件已驗證"
+}

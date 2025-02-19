@@ -1,0 +1,35 @@
+{
+  "app.title": "Auth System",
+  "app.description": "Secure Authentication System",
+
+  "nav.home": "Home",
+  "nav.profile": "Profile",
+  "nav.settings": "Settings",
+  "nav.logout": "Logout",
+
+  "auth.login": "Login",
+  "auth.register": "Register",
+  "auth.forgotPassword": "Forgot Password",
+  "auth.resetPassword": "Reset Password",
+  "auth.verifyEmail": "Verify Email",
+
+  "form.email": "Email",
+  "form.password": "Password",
+  "form.confirmPassword": "Confirm Password",
+  "form.name": "Name",
+  "form.submit": "Submit",
+  "form.cancel": "Cancel",
+
+  "profile.title": "Profile",
+  "profile.edit": "Edit Profile",
+  "profile.save": "Save Changes",
+
+  "error.required": "This field is required",
+  "error.invalidEmail": "Please enter a valid email address",
+  "error.passwordMismatch": "Passwords do not match",
+  "error.generic": "An error occurred, please try again",
+
+  "success.profileUpdated": "Profile updated successfully",
+  "success.passwordChanged": "Password changed successfully",
+  "success.emailVerified": "Email verified successfully"
+}
