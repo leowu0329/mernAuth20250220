@@ -10,11 +10,11 @@ const Dashboard = () => {
   const handleLogout = () => {
     try {
       logout();
-      toast.success('已成功登出');
+      toast.success('已成功登出！歡迎再次使用');
       navigate('/login', { replace: true });
     } catch (error) {
       console.error('Logout error:', error);
-      toast.error('登出失敗');
+      toast.error('登出時發生錯誤，請稍後再試');
     }
   };
 
@@ -33,7 +33,16 @@ const Dashboard = () => {
             <Typography variant="h4" gutterBottom>
               歡迎回來，{user?.name}
             </Typography>
-            <Button variant="contained" color="error" onClick={handleLogout}>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleLogout}
+              sx={{
+                '&:hover': {
+                  backgroundColor: '#d32f2f',
+                },
+              }}
+            >
               登出
             </Button>
           </Box>
