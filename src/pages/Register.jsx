@@ -12,7 +12,7 @@ import {
   IconButton,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext.jsx';
 import { toast } from 'react-toastify';
 
 const Register = () => {
@@ -60,8 +60,12 @@ const Register = () => {
     try {
       await register(formData);
       toast.success('註冊成功！請檢查您的電子郵件以驗證帳號');
-      navigate('/login');
+      navigate('/verify-email', {
+        state: { email: formData.email },
+        replace: true,
+      });
     } catch (error) {
+      console.error('Registration error:', error);
       toast.error(error.response?.data?.message || '註冊失敗，請稍後再試');
     } finally {
       setLoading(false);

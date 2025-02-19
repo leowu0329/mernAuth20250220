@@ -12,7 +12,7 @@ import {
   IconButton,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext.jsx';
 import { toast } from 'react-toastify';
 
 const Login = () => {
@@ -49,18 +49,18 @@ const Login = () => {
       console.log('Login error:', error);
       if (
         error.status === 'UNVERIFIED' ||
-        error.response?.data?.message === '請先驗證郵箱'
+        error.response?.data?.message === '請先驗證您的郵箱'
       ) {
         const email = error.email || formData.email;
         console.log('Redirecting to verify-email with email:', email);
+        toast.info('請先驗證您的郵箱後再登入');
         navigate('/verify-email', {
           state: { email },
           replace: true,
         });
-        toast.info('請先驗證您的郵箱');
-      } else {
-        toast.error(error.response?.data?.message || '登入失敗');
+        return; // 提前返回，不顯示登入失敗的錯誤訊息
       }
+      toast.error(error.response?.data?.message || '登入失敗');
     } finally {
       setLoading(false);
     }

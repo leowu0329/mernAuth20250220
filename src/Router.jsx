@@ -39,12 +39,6 @@ PrivateRoute.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-// Root redirect component
-const RootRedirect = () => {
-  const { user } = useAuth();
-  return <Navigate to={user ? '/dashboard' : '/login'} replace />;
-};
-
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route>

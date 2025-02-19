@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
+import { useAuth } from '../context/AuthContext.jsx'; // 修改擴展名
 
 // 驗證碼輸入框組件
 const VerificationInput = ({ value, onChange, disabled }) => {

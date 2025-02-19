@@ -8,9 +8,10 @@ import {
   Button,
   Paper,
   Grid,
-  CircularProgress
+  CircularProgress,
 } from '@mui/material';
 import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext.jsx'; // 修改擴展名
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -33,18 +34,21 @@ const ForgotPassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateEmail()) return;
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/auth/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        'http://localhost:5000/api/auth/forgot-password',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
         },
-        body: JSON.stringify({ email }),
-      });
+      );
 
       const data = await response.json();
 
@@ -69,7 +73,7 @@ const ForgotPassword = () => {
             minHeight: '100vh',
             display: 'flex',
             alignItems: 'center',
-            py: 3
+            py: 3,
           }}
         >
           <Paper
@@ -77,14 +81,15 @@ const ForgotPassword = () => {
             sx={{
               p: 4,
               width: '100%',
-              textAlign: 'center'
+              textAlign: 'center',
             }}
           >
             <Typography variant="h5" gutterBottom>
               郵件已發送！
             </Typography>
             <Typography color="text.secondary" paragraph>
-              我們已將重設密碼的連結發送至：<br />
+              我們已將重設密碼的連結發送至：
+              <br />
               <strong>{email}</strong>
             </Typography>
             <Typography color="text.secondary" paragraph>
@@ -110,20 +115,20 @@ const ForgotPassword = () => {
           minHeight: '100vh',
           display: 'flex',
           alignItems: 'center',
-          py: 3
+          py: 3,
         }}
       >
         <Paper
           elevation={3}
           sx={{
             p: 4,
-            width: '100%'
+            width: '100%',
           }}
         >
           <Typography variant="h4" component="h1" align="center" gutterBottom>
             忘記密碼
           </Typography>
-          
+
           <Typography color="text.secondary" align="center" paragraph>
             請輸入您的電子郵件，我們將發送重設密碼的連結給您。
           </Typography>
@@ -153,7 +158,11 @@ const ForgotPassword = () => {
                   size="large"
                   disabled={loading}
                 >
-                  {loading ? <CircularProgress size={24} /> : '發送重設密碼郵件'}
+                  {loading ? (
+                    <CircularProgress size={24} />
+                  ) : (
+                    '發送重設密碼郵件'
+                  )}
                 </Button>
               </Grid>
 

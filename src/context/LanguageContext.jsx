@@ -4,11 +4,11 @@ import zhTW from '../locales/zh-TW.json';
 import enUS from '../locales/en-US.json';
 import PropTypes from 'prop-types';
 
-// Create context with initial null value
-const LanguageContext = createContext(null);
+// 創建並導出 context
+export const LanguageContext = createContext(null);
 
-// Define available messages for each locale
-const messages = {
+// 導出可用的語言消息
+export const messages = {
   'zh-TW': zhTW,
   'en-US': enUS,
 };
@@ -70,6 +70,7 @@ LanguageProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
+// 導出 useLanguage hook
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (!context) {

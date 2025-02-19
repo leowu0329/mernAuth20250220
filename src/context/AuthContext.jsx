@@ -40,13 +40,10 @@ export const AuthProvider = ({ children }) => {
   const register = async (formData) => {
     try {
       const response = await api.post('/auth/register', formData);
-      const { token, user } = response.data;
-      if (!token || !user) {
-        throw new Error('Invalid response data');
+      // 註冊後不再設置 token 和 user，因為需要先驗證郵箱
+      if (!response.data || !response.data.user) {
+        throw new Error('註冊回應格式錯誤');
       }
-      localStorage.setItem('token', token);
-      setUser(user);
-      setError(null);
       return response.data;
     } catch (error) {
       console.error('Registration failed:', error);
@@ -66,8 +63,7 @@ export const AuthProvider = ({ children }) => {
 
       // 檢查用戶是否已驗證
       if (!user.isVerified) {
-        setError('請先驗證郵箱');
-        const error = new Error('請先驗證郵箱');
+        const error = new Error('請先驗證您的郵箱');
         error.status = 'UNVERIFIED';
         error.email = user.email;
         throw error;
@@ -80,10 +76,10 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Login failed:', error);
       // 檢查是否是後端返回的未驗證錯誤
-      if (error.response?.data?.message === '請先驗證郵箱') {
-        const customError = new Error('請先驗證郵箱');
+      if (error.response?.data?.status === 'UNVERIFIED') {
+        const customError = new Error('請先驗證您的郵箱');
         customError.status = 'UNVERIFIED';
-        customError.email = error.response.data.email; // 假設後端返回了 email
+        customError.email = error.response.data.email;
         throw customError;
       }
       setError(error.response?.data?.message || error.message);

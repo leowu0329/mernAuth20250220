@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { IntlProvider } from 'react-intl';
 import PropTypes from 'prop-types';
-import { LanguageContext, messages } from './LanguageContext';
+import { LanguageContext, messages } from './LanguageContext.jsx';
 
 export const LanguageProvider = ({ children }) => {
   const [locale, setLocale] = useState('zh-TW');

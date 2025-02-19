@@ -7,6 +7,7 @@ import {
 } from '../utils/email.js';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
+import crypto from 'crypto';
 
 // Load environment variables
 dotenv.config();
@@ -21,6 +22,11 @@ const generateToken = (userId) => {
 // 生成驗證碼
 const generateVerificationCode = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+// 生成重設密碼 token
+const generateResetToken = () => {
+  return crypto.randomBytes(32).toString('hex');
 };
 
 // 註冊
@@ -39,9 +45,9 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: '此電子郵件已被註冊' });
     }
 
-    // 使用抽取的函數生成驗證碼
+    // 生成驗證碼
     const verificationCode = generateVerificationCode();
-    const verificationCodeExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24小時後過期
+    const verificationCodeExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     // 創建新用戶
     const user = new User({
@@ -57,25 +63,15 @@ export const register = async (req, res) => {
 
     // 發送驗證郵件
     try {
-      console.log('Sending verification email to:', email);
       await sendVerificationEmail(email, verificationCode);
-      console.log('Verification email sent successfully');
     } catch (emailError) {
       console.error('Failed to send verification email:', emailError);
-      // 即使郵件發送失敗，也繼續註冊流程，但記錄錯誤
     }
 
-    // 使用抽取的函數生成 token
-    const token = generateToken(user._id);
-
-    // 返回用戶資訊（不包含密碼）
+    // 返回用戶資訊，但不包含 token（因為還未驗證）
     res.status(201).json({
-      token,
       user: {
-        id: user._id,
-        name: user.name,
         email: user.email,
-        isVerified: user.isVerified,
       },
       message: '註冊成功，請檢查您的電子郵件以驗證帳號',
     });
@@ -103,12 +99,25 @@ export const verifyEmail = async (req, res) => {
     }
 
     user.isVerified = true;
-    user.verificationCode = null;
-    user.verificationCodeExpires = null;
+    user.verificationCode = undefined;
+    user.verificationCodeExpires = undefined;
     await user.save();
 
-    res.json({ message: '郵箱驗證成功' });
+    // 生成 token
+    const token = generateToken(user._id);
+
+    res.json({
+      message: '郵箱驗證成功',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        isVerified: true,
+      },
+    });
   } catch (error) {
+    console.error('Email verification error:', error);
     res.status(500).json({ message: '驗證失敗', error: error.message });
   }
 };
@@ -118,29 +127,28 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // 檢查必要欄位
-    if (!email || !password) {
-      return res.status(400).json({ message: '請填寫電子郵件和密碼' });
-    }
-
-    // 查找用戶
+    // 檢查用戶是否存在
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: '電子郵件或密碼錯誤' });
     }
 
-    // 驗證密碼
+    // 檢查密碼是否正確
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: '電子郵件或密碼錯誤' });
     }
 
-    // 檢查郵箱是否已驗證
+    // 檢查用戶是否已驗證
     if (!user.isVerified) {
-      return res.status(401).json({ message: '請先驗證郵箱' });
+      return res.status(401).json({
+        status: 'UNVERIFIED',
+        message: '請先驗證您的郵箱',
+        email: user.email,
+      });
     }
 
-    // 使用抽取的函數生成 token
+    // 生成 token
     const token = generateToken(user._id);
 
     // 返回用戶資訊（不包含密碼）
@@ -154,11 +162,8 @@ export const login = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('登入錯誤:', error);
-    res.status(500).json({
-      message: '登入過程中發生錯誤',
-      error: error.message,
-    });
+    console.error('Login error:', error);
+    res.status(500).json({ message: '登入失敗', error: error.message });
   }
 };
 
@@ -171,19 +176,23 @@ export const forgotPassword = async (req, res) => {
       return res.status(404).json({ message: '找不到此電子郵件地址的用戶' });
     }
 
-    const resetToken = Math.random().toString(36).slice(-8);
+    const resetToken = generateResetToken();
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpires = Date.now() + 24 * 60 * 60 * 1000; // 24小時後過期
     await user.save();
 
     try {
       await sendPasswordResetEmail(user.email, resetToken);
-      res.json({ message: '重設密碼郵件已發送' });
+      res.json({ message: '重設密碼連結已發送到您的電子郵件' });
     } catch (emailError) {
       console.error('Failed to send password reset email:', emailError);
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+      await user.save();
       res.status(500).json({ message: '發送重設密碼郵件失敗' });
     }
   } catch (error) {
+    console.error('Reset password request failed:', error);
     res.status(500).json({ message: '重設密碼請求失敗', error: error.message });
   }
 };
