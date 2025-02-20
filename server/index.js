@@ -19,7 +19,15 @@ console.log('PORT:', process.env.PORT);
 const app = express();
 
 // 設定中間件
-app.use(cors()); // 啟用跨域資源共享
+app.use(
+  cors({
+    origin: [
+      'https://mernauth20250220.onrender.com',
+      'http://localhost:5173', // 開發環境用
+    ],
+    credentials: true,
+  }),
+); // 啟用跨域資源共享
 app.use(express.json()); // 解析 JSON 請求體
 
 // 確保 MongoDB 連接字串存在
