@@ -1,5 +1,7 @@
+// 導入必要的 React Hook 和路由元件
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+// 導入 Material-UI 元件
 import {
   Container,
   Box,
@@ -10,16 +12,24 @@ import {
   Grid,
   CircularProgress,
 } from '@mui/material';
+// 導入提示訊息元件
 import { toast } from 'react-toastify';
+// 導入身份驗證相關 Hook
 import { useAuth } from '../context/AuthContext.jsx'; // 修改擴展名
 
+// 忘記密碼頁面元件
 const ForgotPassword = () => {
   const navigate = useNavigate();
+  // 載入狀態
   const [loading, setLoading] = useState(false);
+  // 電子郵件輸入狀態
   const [email, setEmail] = useState('');
+  // 錯誤訊息狀態
   const [error, setError] = useState('');
+  // 表單提交狀態
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  // 驗證電子郵件格式
   const validateEmail = () => {
     if (!email) {
       setError('請輸入電子郵件');
@@ -32,6 +42,7 @@ const ForgotPassword = () => {
     return true;
   };
 
+  // 處理表單提交
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -39,6 +50,7 @@ const ForgotPassword = () => {
 
     setLoading(true);
     try {
+      // 發送重設密碼請求
       const response = await fetch(
         'http://localhost:5000/api/auth/forgot-password',
         {
@@ -65,6 +77,7 @@ const ForgotPassword = () => {
     }
   };
 
+  // 顯示郵件發送成功畫面
   if (isSubmitted) {
     return (
       <Container maxWidth="sm">
@@ -108,6 +121,7 @@ const ForgotPassword = () => {
     );
   }
 
+  // 顯示忘記密碼表單
   return (
     <Container maxWidth="sm">
       <Box

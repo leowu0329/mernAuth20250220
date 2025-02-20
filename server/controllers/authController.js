@@ -9,27 +9,45 @@ import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import crypto from 'crypto';
 
-// Load environment variables
+// 載入環境變數
 dotenv.config();
 
-// 生成 JWT Token
+/**
+ * 生成 JWT Token
+ * @param {string} userId - 使用者ID
+ * @returns {string} JWT Token
+ */
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: '7d',
+    expiresIn: '7d', // Token 有效期為 7 天
   });
 };
 
-// 生成驗證碼
+/**
+ * 生成 6 位數的驗證碼
+ * @returns {string} 6位數驗證碼
+ */
 const generateVerificationCode = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-// 生成重設密碼 token
+/**
+ * 生成重設密碼用的隨機 token
+ * @returns {string} 32位元組的十六進制字串
+ */
 const generateResetToken = () => {
   return crypto.randomBytes(32).toString('hex');
 };
 
-// 註冊
+/**
+ * 使用者註冊
+ * 處理新使用者註冊流程，包含：
+ * 1. 驗證必填欄位
+ * 2. 檢查電子郵件是否已被註冊
+ * 3. 生成驗證碼
+ * 4. 創建新使用者
+ * 5. 發送驗證郵件
+ */
 export const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -47,7 +65,7 @@ export const register = async (req, res) => {
 
     // 生成驗證碼
     const verificationCode = generateVerificationCode();
-    const verificationCodeExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const verificationCodeExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24小時後過期
 
     // 創建新用戶
     const user = new User({
@@ -84,6 +102,10 @@ export const register = async (req, res) => {
   }
 };
 
+/**
+ * 驗證電子郵件
+ * 驗證使用者的電子郵件地址，確認驗證碼是否正確且未過期
+ */
 export const verifyEmail = async (req, res) => {
   try {
     const { email, code } = req.body;
@@ -122,7 +144,14 @@ export const verifyEmail = async (req, res) => {
   }
 };
 
-// 登入
+/**
+ * 使用者登入
+ * 處理使用者登入流程，包含：
+ * 1. 驗證使用者存在
+ * 2. 驗證密碼正確
+ * 3. 檢查帳號是否已驗證
+ * 4. 生成 JWT Token
+ */
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -167,6 +196,13 @@ export const login = async (req, res) => {
   }
 };
 
+/**
+ * 忘記密碼請求
+ * 處理使用者忘記密碼的請求：
+ * 1. 確認使用者存在
+ * 2. 生成重設密碼 token
+ * 3. 發送重設密碼郵件
+ */
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -197,6 +233,12 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
+/**
+ * 重設密碼
+ * 處理使用者重設密碼的請求：
+ * 1. 驗證重設密碼 token 是否有效
+ * 2. 更新使用者密碼
+ */
 export const resetPassword = async (req, res) => {
   try {
     const { token, password } = req.body;
@@ -221,7 +263,13 @@ export const resetPassword = async (req, res) => {
   }
 };
 
-// 重新發送驗證碼
+/**
+ * 重新發送驗證碼
+ * 處理重新發送驗證碼的請求：
+ * 1. 確認使用者存在且未驗證
+ * 2. 生成新的驗證碼
+ * 3. 發送驗證郵件
+ */
 export const resendVerificationCode = async (req, res) => {
   try {
     const { email } = req.body;
@@ -256,7 +304,10 @@ export const resendVerificationCode = async (req, res) => {
   }
 };
 
-// 獲取當前用戶信息
+/**
+ * 獲取當前使用者資訊
+ * 根據 JWT Token 中的使用者 ID 獲取使用者資訊
+ */
 export const getCurrentUser = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');

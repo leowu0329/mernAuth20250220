@@ -2,21 +2,23 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 
-// Load environment variables
+// 載入環境變數
 dotenv.config();
 
 // 創建郵件傳輸器
+// 使用 nodemailer 建立 SMTP 傳輸器，用於發送電子郵件
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: process.env.SMTP_PORT,
-  secure: false,
+  host: process.env.SMTP_HOST, // SMTP 伺服器主機
+  port: process.env.SMTP_PORT, // SMTP 伺服器埠號
+  secure: false, // 是否使用 SSL/TLS
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.EMAIL_USER, // 寄件者電子郵件
+    pass: process.env.EMAIL_PASS, // 寄件者密碼
   },
 });
 
 // 測試郵件連接
+// 驗證 SMTP 伺服器連線是否正常
 transporter.verify((error) => {
   if (error) {
     console.error('SMTP connection error:', error);
@@ -25,12 +27,17 @@ transporter.verify((error) => {
   }
 });
 
-// 發送驗證郵件
+/**
+ * 發送驗證郵件
+ * @param {string} to - 收件者電子郵件地址
+ * @param {string} verificationCode - 驗證碼
+ * @returns {Promise} 郵件發送結果
+ */
 export const sendVerificationEmail = async (to, verificationCode) => {
   const mailOptions = {
-    from: `"Auth System" <${process.env.EMAIL_USER}>`,
-    to: to,
-    subject: '驗證您的電子郵件',
+    from: `"Auth System" <${process.env.EMAIL_USER}>`, // 寄件者名稱和地址
+    to: to, // 收件者地址
+    subject: '驗證您的電子郵件', // 郵件主旨
     html: `
       <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
         <h2>驗證您的電子郵件</h2>
@@ -55,14 +62,20 @@ export const sendVerificationEmail = async (to, verificationCode) => {
   }
 };
 
-// 發送重設密碼郵件
+/**
+ * 發送重設密碼郵件
+ * @param {string} to - 收件者電子郵件地址
+ * @param {string} resetToken - 重設密碼的 Token
+ * @returns {Promise} 郵件發送結果
+ */
 export const sendPasswordResetEmail = async (to, resetToken) => {
+  // 建立重設密碼連結
   const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
   const mailOptions = {
-    from: `"Auth System" <${process.env.EMAIL_USER}>`,
-    to: to,
-    subject: '重設您的密碼',
+    from: `"Auth System" <${process.env.EMAIL_USER}>`, // 寄件者名稱和地址
+    to: to, // 收件者地址
+    subject: '重設您的密碼', // 郵件主旨
     html: `
       <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
         <h2 style="color: #333; text-align: center;">重設密碼</h2>

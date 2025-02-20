@@ -1,3 +1,4 @@
+// 導入必要的 React Hooks 和元件
 import { useState, useEffect } from 'react';
 import {
   Container,
@@ -10,34 +11,44 @@ import {
   CircularProgress,
   Avatar,
   IconButton,
-  Divider
+  Divider,
 } from '@mui/material';
 import { PhotoCamera as PhotoCameraIcon } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import Navbar from '../components/Navbar';
 
+/**
+ * 個人資料頁面元件
+ * 提供用戶查看和編輯個人資料的功能
+ */
 const Profile = () => {
+  // 載入狀態
   const [loading, setLoading] = useState(false);
+  // 儲存狀態
   const [saving, setSaving] = useState(false);
+  // 表單資料狀態
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    avatar: null
+    avatar: null,
   });
+  // 錯誤訊息狀態
   const [errors, setErrors] = useState({});
 
+  // 元件掛載時獲取用戶資料
   useEffect(() => {
     fetchUserProfile();
   }, []);
 
+  // 獲取用戶個人資料
   const fetchUserProfile = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:5000/api/users/profile', {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       const data = await response.json();
@@ -49,7 +60,7 @@ const Profile = () => {
       setFormData({
         name: data.name,
         email: data.email,
-        avatar: data.avatar
+        avatar: data.avatar,
       });
     } catch (error) {
       toast.error(error.message);
@@ -58,20 +69,22 @@ const Profile = () => {
     }
   };
 
+  // 處理表單輸入變更
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: '',
       }));
     }
   };
 
+  // 處理頭像上傳
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -96,9 +109,9 @@ const Profile = () => {
       const response = await fetch('http://localhost:5000/api/users/avatar', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: formData
+        body: formData,
       });
 
       const data = await response.json();
@@ -107,9 +120,9 @@ const Profile = () => {
         throw new Error(data.message || '上傳頭像失敗');
       }
 
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        avatar: data.avatar
+        avatar: data.avatar,
       }));
       toast.success('頭像更新成功');
     } catch (error) {
@@ -117,9 +130,10 @@ const Profile = () => {
     }
   };
 
+  // 表單驗證
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = '請輸入姓名';
     }
@@ -134,9 +148,10 @@ const Profile = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // 處理表單提交
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setSaving(true);
@@ -146,11 +161,11 @@ const Profile = () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           name: formData.name,
-          email: formData.email
+          email: formData.email,
         }),
       });
 
@@ -162,11 +177,14 @@ const Profile = () => {
 
       // 更新本地存儲的用戶資訊
       const user = JSON.parse(localStorage.getItem('user') || '{}');
-      localStorage.setItem('user', JSON.stringify({
-        ...user,
-        name: formData.name,
-        email: formData.email
-      }));
+      localStorage.setItem(
+        'user',
+        JSON.stringify({
+          ...user,
+          name: formData.name,
+          email: formData.email,
+        }),
+      );
 
       toast.success('個人資料更新成功');
     } catch (error) {
@@ -176,6 +194,7 @@ const Profile = () => {
     }
   };
 
+  // 載入中顯示載入畫面
   if (loading) {
     return (
       <>
@@ -186,7 +205,7 @@ const Profile = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            pt: 8
+            pt: 8,
           }}
         >
           <CircularProgress />
@@ -195,6 +214,7 @@ const Profile = () => {
     );
   }
 
+  // 渲染個人資料表單
   return (
     <>
       <Navbar />
@@ -205,26 +225,27 @@ const Profile = () => {
             display: 'flex',
             alignItems: 'center',
             pt: 10,
-            pb: 3
+            pb: 3,
           }}
         >
           <Paper
             elevation={3}
             sx={{
               p: 4,
-              width: '100%'
+              width: '100%',
             }}
           >
             <Typography variant="h4" component="h1" align="center" gutterBottom>
               個人資料
             </Typography>
 
+            {/* 頭像上傳區域 */}
             <Box
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                mb: 3
+                mb: 3,
               }}
             >
               <Box sx={{ position: 'relative' }}>
@@ -249,7 +270,7 @@ const Profile = () => {
                       position: 'absolute',
                       bottom: 0,
                       right: 0,
-                      backgroundColor: 'background.paper'
+                      backgroundColor: 'background.paper',
                     }}
                   >
                     <PhotoCameraIcon />
@@ -260,6 +281,7 @@ const Profile = () => {
 
             <Divider sx={{ mb: 3 }} />
 
+            {/* 個人資料表單 */}
             <Box component="form" onSubmit={handleSubmit} noValidate>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
@@ -273,7 +295,7 @@ const Profile = () => {
                     helperText={errors.name}
                   />
                 </Grid>
-                
+
                 <Grid item xs={12}>
                   <TextField
                     fullWidth

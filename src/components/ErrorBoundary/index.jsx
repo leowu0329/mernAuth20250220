@@ -3,16 +3,30 @@ import PropTypes from 'prop-types';
 import { Box, Typography, Button, Container, Paper } from '@mui/material';
 import { Error as ErrorIcon } from '@mui/icons-material';
 
+/**
+ * 錯誤邊界元件
+ * 用於捕獲子元件中的 JavaScript 錯誤，並顯示備用 UI
+ */
 class ErrorBoundary extends React.Component {
+  // 初始化元件狀態
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null, errorInfo: null };
   }
 
+  /**
+   * 當子元件拋出錯誤時觸發
+   * 用於更新元件狀態，使其顯示備用 UI
+   */
   static getDerivedStateFromError(error) {
     return { hasError: true, error };
   }
 
+  /**
+   * 捕獲並記錄錯誤信息
+   * @param {Error} error - 錯誤物件
+   * @param {React.ErrorInfo} errorInfo - React 提供的錯誤資訊
+   */
   componentDidCatch(error, errorInfo) {
     this.setState({
       error: error,
@@ -24,11 +38,18 @@ class ErrorBoundary extends React.Component {
     console.error('Error Info:', errorInfo);
   }
 
+  /**
+   * 重置錯誤狀態並重定向到首頁
+   */
   handleReset = () => {
     this.setState({ hasError: false, error: null, errorInfo: null });
     window.location.href = '/';
   };
 
+  /**
+   * 渲染元件
+   * 如果有錯誤，顯示錯誤 UI；否則渲染子元件
+   */
   render() {
     if (this.state.hasError) {
       return (
@@ -73,6 +94,7 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+// 定義 PropTypes 以進行型別檢查
 ErrorBoundary.propTypes = {
   children: PropTypes.node.isRequired,
 };

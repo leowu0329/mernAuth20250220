@@ -3,13 +3,18 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import dotenv from 'dotenv';
 
-// Load environment variables
+// 載入環境變數
 dotenv.config();
 
+/**
+ * 保護路由中間件
+ * 驗證用戶是否已登入，並檢查 JWT token 是否有效
+ */
 export const protect = async (req, res, next) => {
   try {
     let token;
 
+    // 從請求標頭獲取 Bearer token
     if (req.headers.authorization?.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
     }
@@ -27,6 +32,7 @@ export const protect = async (req, res, next) => {
       return res.status(401).json({ message: '用戶不存在' });
     }
 
+    // 將用戶信息添加到請求對象
     req.user = user;
     next();
   } catch (error) {
@@ -35,6 +41,10 @@ export const protect = async (req, res, next) => {
   }
 };
 
+/**
+ * Token 驗證中間件
+ * 驗證請求中的 JWT token 是否有效
+ */
 export const verifyToken = (req, res, next) => {
   try {
     // 從請求標頭獲取 token
@@ -59,12 +69,17 @@ export const verifyToken = (req, res, next) => {
   }
 };
 
+/**
+ * 管理員權限檢查中間件
+ * 驗證用戶是否具有管理員權限
+ */
 export const isAdmin = (req, res, next) => {
   try {
     if (!req.user) {
       throw new Error('User not found in request');
     }
 
+    // 檢查用戶是否具有管理員權限
     if (req.user.isAdmin) {
       next();
     } else {

@@ -1,5 +1,7 @@
+// 導入必要的 React 和路由相關模組
 import { useState } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
+// 導入 Material-UI 元件
 import {
   AppBar,
   Box,
@@ -14,43 +16,56 @@ import {
   Divider,
   ListItemIcon,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
 } from '@mui/material';
+// 導入 Material Icons
 import {
   Menu as MenuIcon,
   Person as PersonIcon,
   Settings as SettingsIcon,
   Logout as LogoutIcon,
-  Dashboard as DashboardIcon
+  Dashboard as DashboardIcon,
 } from '@mui/icons-material';
+// 導入提示訊息元件
 import { toast } from 'react-toastify';
 
+/**
+ * 導航欄元件
+ * 包含 Logo、選單項目和使用者資訊
+ */
 const Navbar = () => {
   const navigate = useNavigate();
   const theme = useTheme();
+  // 判斷是否為手機版畫面
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  // 控制使用者選單和手機版選單的開關狀態
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileAnchorEl, setMobileAnchorEl] = useState(null);
 
   // 從 localStorage 獲取用戶資訊
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
+  // 開啟使用者選單
   const handleOpenUserMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
+  // 開啟手機版選單
   const handleOpenMobileMenu = (event) => {
     setMobileAnchorEl(event.currentTarget);
   };
 
+  // 關閉使用者選單
   const handleCloseUserMenu = () => {
     setAnchorEl(null);
   };
 
+  // 關閉手機版選單
   const handleCloseMobileMenu = () => {
     setMobileAnchorEl(null);
   };
 
+  // 處理登出功能
   const handleLogout = () => {
     handleCloseUserMenu();
     // 清除本地存儲的用戶資訊
@@ -60,6 +75,7 @@ const Navbar = () => {
     navigate('/login');
   };
 
+  // 定義選單項目
   const menuItems = [
     {
       label: '首頁',
@@ -95,7 +111,7 @@ const Navbar = () => {
               letterSpacing: '.3rem',
               color: 'inherit',
               textDecoration: 'none',
-              flexGrow: { xs: 1, md: 0 }
+              flexGrow: { xs: 1, md: 0 },
             }}
           >
             LOGO
@@ -167,6 +183,7 @@ const Navbar = () => {
                 ))}
               </Box>
 
+              {/* 使用者頭像和下拉選單 */}
               <Box sx={{ flexGrow: 0 }}>
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                   <Avatar alt={user.name} src="/static/images/avatar/2.jpg" />

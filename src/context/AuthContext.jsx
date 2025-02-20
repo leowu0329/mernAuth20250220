@@ -1,14 +1,19 @@
+// 導入必要的 React Hooks 和工具
 import { createContext, useContext, useState, useEffect } from 'react';
 import api from '../utils/api';
 import PropTypes from 'prop-types';
 
+// 創建身份驗證上下文
 const AuthContext = createContext(null);
 
+// 身份驗證提供者元件
 export const AuthProvider = ({ children }) => {
+  // 狀態管理：用戶資訊、載入狀態和錯誤訊息
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // 元件掛載時檢查身份驗證狀態
   useEffect(() => {
     // 檢查本地存儲的 token
     const token = localStorage.getItem('token');
@@ -19,13 +24,14 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  // 檢查用戶身份驗證狀態
   const checkAuth = async () => {
     try {
       const response = await api.get('/auth/me');
       setUser(response.data);
       setError(null);
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.error('身份驗證檢查失敗:', error);
       // 只有在非 404 錯誤時才顯示錯誤信息
       if (error.response?.status !== 404) {
         setError(error.response?.data?.message || error.message);
@@ -37,6 +43,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // 用戶註冊函數
   const register = async (formData) => {
     try {
       const response = await api.post('/auth/register', formData);
@@ -46,16 +53,17 @@ export const AuthProvider = ({ children }) => {
       }
       return response.data;
     } catch (error) {
-      console.error('Registration failed:', error);
+      console.error('註冊失敗:', error);
       setError(error.response?.data?.message || error.message);
       throw error;
     }
   };
 
+  // 用戶登入函數
   const login = async (email, password) => {
     if (!email || !password) {
-      setError('Email and password are required');
-      throw new Error('Email and password are required');
+      setError('需要提供電子郵件和密碼');
+      throw new Error('需要提供電子郵件和密碼');
     }
     try {
       const response = await api.post('/auth/login', { email, password });
@@ -74,7 +82,7 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       return response.data;
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error('登入失敗:', error);
       // 檢查是否是後端返回的未驗證錯誤
       if (error.response?.data?.status === 'UNVERIFIED') {
         const customError = new Error('請先驗證您的郵箱');
@@ -87,17 +95,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // 用戶登出函數
   const logout = () => {
     try {
       localStorage.removeItem('token');
       setUser(null);
       setError(null);
     } catch (error) {
-      console.error('Logout failed:', error);
-      setError('Failed to logout: ' + error.message);
+      console.error('登出失敗:', error);
+      setError('登出失敗: ' + error.message);
     }
   };
 
+  // 提供給上下文的值
   const value = {
     user,
     loading,
@@ -108,6 +118,7 @@ export const AuthProvider = ({ children }) => {
     checkAuth,
   };
 
+  // 渲染身份驗證提供者
   return (
     <AuthContext.Provider value={value}>
       {!loading && children}
@@ -115,14 +126,16 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// 定義 PropTypes
 AuthProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
+// 自定義 Hook 用於存取身份驗證上下文
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth 必須在 AuthProvider 內使用');
   }
   return context;
 };

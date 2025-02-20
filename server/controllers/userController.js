@@ -1,7 +1,12 @@
 import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 
-// 獲取用戶資料
+/**
+ * 獲取用戶資料
+ * @param {Object} req - Express 請求物件
+ * @param {Object} res - Express 回應物件
+ * @returns {Object} 用戶資料（不包含密碼）
+ */
 export const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
@@ -11,7 +16,16 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
-// 更新用戶資料
+/**
+ * 更新用戶資料
+ * @param {Object} req - Express 請求物件
+ * @param {Object} res - Express 回應物件
+ * @returns {Object} 更新後的用戶資料
+ *
+ * 可更新的欄位：
+ * - 名稱 (name)
+ * - 電子郵件 (email)
+ */
 export const updateUserProfile = async (req, res) => {
   try {
     const { name, email } = req.body;
@@ -35,7 +49,17 @@ export const updateUserProfile = async (req, res) => {
   }
 };
 
-// 修改密碼
+/**
+ * 修改用戶密碼
+ * @param {Object} req - Express 請求物件
+ * @param {Object} res - Express 回應物件
+ * @returns {Object} 成功訊息
+ *
+ * 流程：
+ * 1. 驗證當前密碼是否正確
+ * 2. 將新密碼進行加密
+ * 3. 儲存新密碼
+ */
 export const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;

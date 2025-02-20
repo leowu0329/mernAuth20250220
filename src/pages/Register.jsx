@@ -1,5 +1,7 @@
+// 導入必要的 React Hook 和路由元件
 import { useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
+// 導入 Material-UI 元件
 import {
   Container,
   Box,
@@ -11,14 +13,22 @@ import {
   InputAdornment,
   IconButton,
 } from '@mui/material';
+// 導入 Material Icons
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+// 導入身份驗證相關 Hook
 import { useAuth } from '../context/AuthContext.jsx';
+// 導入提示訊息元件
 import { toast } from 'react-toastify';
 
+/**
+ * 註冊頁面元件
+ * 提供使用者註冊功能，包含姓名、電子郵件和密碼輸入
+ */
 const Register = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
 
+  // 表單資料狀態
   const [formData, setFormData] = useState({
     name: 'ryowu',
     email: 'ryowu0329@gmail.com',
@@ -26,10 +36,13 @@ const Register = () => {
     confirmPassword: 'leo140814',
   });
 
+  // 控制密碼顯示狀態
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // 載入狀態
   const [loading, setLoading] = useState(false);
 
+  // 處理表單輸入變更
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -38,9 +51,11 @@ const Register = () => {
     }));
   };
 
+  // 處理表單提交
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // 驗證所有必填欄位
     if (
       !formData.name ||
       !formData.email ||
@@ -51,6 +66,7 @@ const Register = () => {
       return;
     }
 
+    // 驗證密碼是否一致
     if (formData.password !== formData.confirmPassword) {
       toast.error('密碼不一致');
       return;
@@ -58,6 +74,7 @@ const Register = () => {
 
     setLoading(true);
     try {
+      // 發送註冊請求
       await register(formData);
       toast.success('註冊成功！請檢查您的電子郵件以驗證帳號');
       navigate('/verify-email', {
@@ -72,10 +89,12 @@ const Register = () => {
     }
   };
 
+  // 切換密碼顯示狀態
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
 
+  // 切換確認密碼顯示狀態
   const handleClickShowConfirmPassword = () => {
     setShowConfirmPassword(!showConfirmPassword);
   };
@@ -91,6 +110,7 @@ const Register = () => {
         }}
       >
         <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
+          {/* 頁面標題 */}
           <Typography component="h1" variant="h5" align="center" gutterBottom>
             註冊帳號
           </Typography>
@@ -100,6 +120,7 @@ const Register = () => {
             noValidate
             sx={{ mt: 1 }}
           >
+            {/* 姓名輸入欄位 */}
             <TextField
               margin="normal"
               required
@@ -112,6 +133,7 @@ const Register = () => {
               value={formData.name}
               onChange={handleChange}
             />
+            {/* 電子郵件輸入欄位 */}
             <TextField
               margin="normal"
               required
@@ -123,6 +145,7 @@ const Register = () => {
               value={formData.email}
               onChange={handleChange}
             />
+            {/* 密碼輸入欄位 */}
             <TextField
               margin="normal"
               required
@@ -149,6 +172,7 @@ const Register = () => {
                 ),
               }}
             />
+            {/* 確認密碼輸入欄位 */}
             <TextField
               margin="normal"
               required
@@ -175,6 +199,7 @@ const Register = () => {
                 ),
               }}
             />
+            {/* 註冊按鈕 */}
             <Button
               type="submit"
               fullWidth
@@ -184,6 +209,7 @@ const Register = () => {
             >
               {loading ? '註冊中...' : '註冊'}
             </Button>
+            {/* 登入連結 */}
             <Box sx={{ textAlign: 'center' }}>
               <Link component={RouterLink} to="/login" variant="body2">
                 已有帳號？登入

@@ -1,3 +1,4 @@
+// 導入必要的 React Hooks 和工具
 import { createContext, useContext, useState, useMemo } from 'react';
 import {
   createTheme,
@@ -6,19 +7,28 @@ import {
 import { zhTW } from '@mui/material/locale';
 import PropTypes from 'prop-types';
 
+// 創建主題上下文
 const ThemeContext = createContext(null);
 
+/**
+ * 主題提供者元件
+ * 用於管理應用程式的主題設定（明亮/暗黑模式）
+ * @param {Object} props - 元件屬性
+ * @param {ReactNode} props.children - 子元件
+ */
 export const ThemeProvider = ({ children }) => {
+  // 設定主題模式狀態，從本地存儲讀取或預設為明亮模式
   const [mode, setMode] = useState(() => {
     try {
       const savedMode = localStorage.getItem('themeMode');
       return savedMode || 'light';
     } catch (error) {
-      console.error('Error reading theme from localStorage:', error);
+      console.error('從本地存儲讀取主題時發生錯誤:', error);
       return 'light';
     }
   });
 
+  // 使用 useMemo 建立主題，避免不必要的重新渲染
   const theme = useMemo(() => {
     try {
       return createTheme(
@@ -27,7 +37,7 @@ export const ThemeProvider = ({ children }) => {
             mode,
             ...(mode === 'light'
               ? {
-                  // Light mode colors
+                  // 明亮模式顏色設定
                   primary: {
                     main: '#1976d2',
                   },
@@ -40,7 +50,7 @@ export const ThemeProvider = ({ children }) => {
                   },
                 }
               : {
-                  // Dark mode colors
+                  // 暗黑模式顏色設定
                   primary: {
                     main: '#90caf9',
                   },
@@ -53,9 +63,11 @@ export const ThemeProvider = ({ children }) => {
                   },
                 }),
           },
+          // 設定字體
           typography: {
             fontFamily: ['Noto Sans TC', 'Roboto', 'sans-serif'].join(','),
           },
+          // 元件樣式覆寫
           components: {
             MuiButton: {
               styleOverrides: {
@@ -69,19 +81,23 @@ export const ThemeProvider = ({ children }) => {
         zhTW,
       );
     } catch (error) {
-      console.error('Error creating theme:', error);
-      // Return a basic fallback theme
+      console.error('建立主題時發生錯誤:', error);
+      // 返回基本備用主題
       return createTheme();
     }
   }, [mode]);
 
+  /**
+   * 切換主題模式的函數
+   * 在明亮和暗黑模式之間切換
+   */
   const toggleTheme = () => {
     try {
       const newMode = mode === 'light' ? 'dark' : 'light';
       setMode(newMode);
       localStorage.setItem('themeMode', newMode);
     } catch (error) {
-      console.error('Error toggling theme:', error);
+      console.error('切換主題時發生錯誤:', error);
     }
   };
 
@@ -92,14 +108,20 @@ export const ThemeProvider = ({ children }) => {
   );
 };
 
+// 定義元件屬性型別
 ThemeProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
+/**
+ * 自定義 Hook，用於在元件中使用主題上下文
+ * @returns {Object} 包含主題模式和切換主題函數的物件
+ * @throws {Error} 如果在 ThemeProvider 外使用則拋出錯誤
+ */
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    throw new Error('useTheme 必須在 ThemeProvider 內使用');
   }
   return context;
 };
